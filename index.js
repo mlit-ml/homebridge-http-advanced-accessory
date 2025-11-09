@@ -51,7 +51,7 @@ function HttpAdvancedAccessory(log, config) {
 	 *}
 	 */
 	function createAction(action, actionDescription){
-		action.url = actionDescription.url;
+		action.url = encodeURI(decodeURI(actionDescription.url));
 		action.httpMethod = actionDescription.httpMethod || "GET";
 		action.body = actionDescription.body || "";
 		action.resultOnError = actionDescription.resultOnError;
