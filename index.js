@@ -51,7 +51,7 @@ function HttpAdvancedAccessory(log, config) {
 	 *}
 	 */
 	function createAction(action, actionDescription){
-		action.url = encodeURI(decodeURI(actionDescription.url));
+		action.url = actionDescription.url;
 		action.httpMethod = actionDescription.httpMethod || "GET";
 		action.body = actionDescription.body || "";
 		action.resultOnError = actionDescription.resultOnError;
@@ -215,8 +215,9 @@ HttpAdvancedAccessory.prototype = {
 				callback(null);
 				return;
 			}
-			this.debugLog("getDispatch function called for url: %s", action.url);
-			this.httpRequest(action.url, action.body, action.httpMethod, function(error, response, responseBody) {
+			const encodedUrl = encodeURI(decodeURI(action.url));
+			this.debugLog("getDispatch function called for url: %s", encodedUrl);
+			this.httpRequest(encodedUrl, action.body, action.httpMethod, function(error, response, responseBody) {
 				if (error && action.resultOnError != null) {
 					this.debugLog("GetState function failed BUT using resultOnError=%s: %s", action.resultOnError, error.message);
 					callback(null, action.resultOnError);
@@ -224,7 +225,7 @@ HttpAdvancedAccessory.prototype = {
 					this.log("GetState function failed: %s", error.message);
 					callback(error);
 				} else {
-					this.debugLog("received response from action: %s", action.url);
+					this.debugLog("received response from action: %s", encodedUrl);
 					var state = responseBody;
 					state = this.applyMappers(action.mappers,state);
 					if (state == "inconclusive") {
@@ -262,7 +263,8 @@ HttpAdvancedAccessory.prototype = {
 					body = eval('`'+body+'`').replace(/{value}/gi, mappedValue);
 				}
 
-				this.httpRequest(url, body, action.httpMethod, function(error, response, responseBody) {
+				const encodedUrl = encodeURI(decodeURI(url))
+				this.httpRequest(encodedUrl, body, action.httpMethod, function(error, response, responseBody) {
 					if (error) {
 						this.log("SetState function failed: %s", error.message);
 					}
